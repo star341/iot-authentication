@@ -1,0 +1,85 @@
+%%% activation  
+%%% 1. device -> AS: SD.R1.{Hash(SD.R1)}_PS               SD,R1,HMAC(PS,SD||R1)    ->  SD,R1,En(PS,Hash(SD||R1)) 
+%%% 2. AS -> device: SD.R2.{DS}_PS.{Hash(SD.R2.{DS}_PS)}_PS       SD,R2,En(PS,DS),HMAC(PS,SD||R2||En(PS,DS))
+%%% 3. device -> AS: SD.R3.{R2}_DS                         SD,R3,En(DS,R2)
+%%% 4. AS -> device: {R3}_DS                                En(DS,R3)
+
+role device(SD,AS:agent,PS:symmetric_key,Hash:hash_func,SND,RCV:channel(dy))
+played_by SD
+def=
+    local
+        State:nat,
+        R1, R2, R3: text,
+        DS: symmetric_key
+    init
+        State := 0
+    transition
+        1. State=0 /\ RCV(start) =|>
+           State':=1 /\ R1':=new() /\ SND(SD.R1'.{Hash(SD.R1')}_PS)  %Here I use En(PS, Hash(SD || R1)) instead of HMAC(PS, SD || R1)
+
+        2. State=1 /\ RCV(SD.R2'.{DS'}_PS.{Hash(SD.R2'.{DS'}_PS)}_PS) =|>
+           State':=2 /\ R3':=new() /\ SND(SD.R3'.{R2'}_DS') /\ witness(SD,AS,auth_r2,R2')
+
+        3. State=2 /\ RCV({R3}_DS) =|>
+	   State':=3 /\ request(SD,AS,auth_r3,R3)
+
+end role
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+role authserver(AS,SD:agent,PS:symmetric_key,Hash:hash_func,SND,RCV:channel(dy))
+played_by AS
+def=
+    local
+        State:nat,
+        R1, R2, R3: text,
+        DS: symmetric_key
+    init
+        State := 0
+    transition
+        1. State=0 /\ RCV(SD.R1'.{Hash(SD.R1')}_PS) =|>
+           State':=1 /\ DS':=new() /\ R2':=new() /\ SND(SD.R2'.{DS'}_PS.{Hash(SD.R2'.{DS'}_PS)}_PS) /\ secret(DS',sec_ds,{AS,SD}) 
+
+        2. State=1 /\ RCV(SD.R3'.{R2}_DS) =|>
+           State':=2 /\ SND({R3'}_DS) /\ witness(AS,SD,auth_r3,R3') /\ request(AS,SD,auth_r2,R2)
+end role
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+role session(SD,AS:agent,PS:symmetric_key,Hash:hash_func)
+def=
+    local
+        SND2,RCV2,SND1,RCV1:channel(dy)
+    composition
+        device(SD,AS,PS,Hash,SND1,RCV1) /\
+        authserver(AS,SD,PS,Hash,SND2,RCV2)
+end role
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+role environment()
+def=
+    const
+        sd1,sd2,as:agent,
+        ps:symmetric_key,
+        myhash:hash_func,
+        sec_ds,auth_r2,auth_r3:protocol_id
+
+        intruder_knowledge = {sd1, sd2, as, myhash}
+        composition
+            session(sd1,as,ps,myhash)
+            %/\ session(sd1,as,ps,myhash)
+            /\ session(sd2,as,ps,myhash)
+end role
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+goal
+    secrecy_of sec_ds
+    authentication_on auth_r2
+    authentication_on auth_r3
+end goal
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+environment()

@@ -68,7 +68,6 @@ def=
         intruder_knowledge = {sd1, sd2, as, myhash}
         composition
             session(sd1,as,ps,myhash)
-            %/\ session(sd1,as,ps,myhash)
             /\ session(sd2,as,ps,myhash)
 end role
 

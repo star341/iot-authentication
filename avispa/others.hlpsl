@@ -313,10 +313,8 @@ def=
     intruder_knowledge = {sd1, ma1, sd2, ma2, as, rs, myhash, kbindi, kia, dsi}
     composition
         session(sd1,rs,as,ma1,ds1,kbind1,kap1,kra,myhash)
-        %/\session(sd1,rs,as,ma1,ds1,kbind1,kap1,kra,myhash)
-        %/\ session(sd2,rs,as,ma2,ds1,kbind2,kap2,kra,myhash)
-        %/\ session(sd1,rs,as,i,ds1,kbindi,kia,kra,myhash)
-        %/\ session(i,rs,as,ma1,dsi,kbindi,kap1,kra,myhash)
+        /\ session(sd1,rs,as,i,ds1,kbindi,kia,kra,myhash)
+        /\ session(i,rs,as,ma1,dsi,kbindi,kap1,kra,myhash)
 end role
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

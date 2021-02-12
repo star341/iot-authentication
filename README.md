@@ -1,3 +1,7 @@
+---
+typora-root-url: README.assets
+---
+
 # iot-authentication
 
 Project for my paper "An Authentication Scheme for Large Scale Consumer Oriented Smart IoT Applications".

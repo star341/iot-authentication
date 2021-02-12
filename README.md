@@ -8,7 +8,7 @@ It contains my hlpsl code formal security analysis and python code for measuring
 
 
 
-![systemArchitecture](.\README.assets\systemArchitecture.png)
+![systemArchitecture](systemArchitecture.png)
 
 ​	The system consists of four entities: IoT device, back-end authentication server, back-end relay server, and a mobile application.
 

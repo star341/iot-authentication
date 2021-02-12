@@ -1,7 +1,3 @@
----
-typora-root-url: README.assets
----
-
 # iot-authentication
 
 Project for my paper "An Authentication Scheme for Large Scale Consumer Oriented Smart IoT Applications".
@@ -12,9 +8,7 @@ It contains my hlpsl code formal security analysis and python code for measuring
 
 
 
-
-
-![systemArchitecture](..\README.assets\systemArchitecture.png)
+![systemArchitecture](.\README.assets\systemArchitecture.png)
 
 ​	The system consists of four entities: IoT device, back-end authentication server, back-end relay server, and a mobile application.
 
